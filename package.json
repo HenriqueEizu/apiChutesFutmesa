@@ -1,0 +1,22 @@
+{
+  "name": "apichutesfutmesa",
+  "version": "1.0.0",
+  "description": "Api em Node para o sistema ChutesFutmesa",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HenriqueEizu/apiChutesFutmesa.git"
+  },
+  "author": "Henrique Eizu Morais",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HenriqueEizu/apiChutesFutmesa/issues"
+  },
+  "homepage": "https://github.com/HenriqueEizu/apiChutesFutmesa#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

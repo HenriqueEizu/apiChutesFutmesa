@@ -2,7 +2,7 @@
   "name": "apichutesfutmesa",
   "version": "1.0.0",
   "description": "Api em Node para o sistema ChutesFutmesa",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/HenriqueEizu/apiChutesFutmesa#readme",
   "dependencies": {
+    "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",

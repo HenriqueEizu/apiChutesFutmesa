@@ -3,10 +3,12 @@ const router = express.Router();
 const mysql = require('mysql');
 let config = require('./config.js');
 var cors = require('cors')
+const Login = require('./middleware/login');
 
 
-router.options('/', cors()) // enable pre-flight request for DELETE 
-router.get('/',cors(),(req,res) => {
+router.options('/',  cors()) // enable pre-flight request for DELETE 
+router.post('/',Login.obrigatorio, cors(),(req,res) => {
+    console.log(req.usuario);
     const connection = mysql.createConnection(config)
     connection.query("SELECT * FROM Clubes",( err, rows, fields) =>{
         if (err) {

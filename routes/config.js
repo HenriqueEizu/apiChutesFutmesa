@@ -4,6 +4,8 @@ let config = {
     password: '850495ab',
     database: 'futmesacartola'
   };
+
+let jwt_key = "segredo"
    
   module.exports = config;
 

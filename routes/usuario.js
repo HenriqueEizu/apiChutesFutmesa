@@ -5,12 +5,15 @@ let config = require('./config.js');
 var cors = require('cors')
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const Login = require('./middleware/login');
+
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
 
-router.options('/Incluir', bodyParser.json(),cors()) // enable pre-flight request for DELETE 
+router.options('/Incluir',  bodyParser.json(),cors()) // enable pre-flight request for DELETE 
 router.post('/Incluir', cors(),(req, res) => {
     strSql : String;
     blnAtivo : Boolean;
@@ -49,15 +52,15 @@ router.post('/Incluir', cors(),(req, res) => {
                 connection.query(strSql,[req.body.US_USLOGIN,blnAtivo,req.body.US_CLID,req.body.US_GUID
                     ,req.body.US_USEMAIL,req.body.US_USNOMETRATAMENTO,req.body.US_USDATACADASTRO
                     , hash ],( err, results, fields) =>{
-                    if (err){
-                        console.log(err)
-                        res.end(err)
-                        return false
-                    }
-                    console.log("first:" + req.body)
-                    // res.end("Usuário inserido com sucesso");
-                    res.end();
                     connection.destroy();
+                    if (err){ 
+                        res.status(500).send({ error: err})
+                        return false;
+                   }
+                    console.log("first:" + req.body)
+                    res.status(500).send("Usuário inserido com sucesso");
+                    res.end();
+                    
                     return true;
                 })
                 
@@ -126,5 +129,37 @@ router.get('/verificaLogin/:id',cors(),(req,res) => {
     })
 
 })
+
+router.options('/login', cors()) // enable pre-flight request for DELETE 
+router.post('/login',cors(),(req,res) => {
+    const connection = mysql.createConnection(config);
+    strSql : String;
+    strSql = "SELECT * FROM USUARIO WHERE US_USLOGIN = ? "
+    connection.query(strSql,[req.body.US_USLOGIN],( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {return res.status(500).send({ error: err})}
+        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Falha na autenticação 1'})}
+        bcrypt.compare(req.body.US_USSENHA, rows[0].US_USSENHA,(err, result) =>{
+            if (err) { return res.status(401).send({ mensagem: 'Falha na autenticação 2'})}
+            if (result) { 
+                const token = jwt.sign({
+                    US_USLOGIN: rows[0].US_USLOGIN,
+                    US_USEMAIL: rows[0].US_USEMAIL
+                },
+                "segredo",
+                {
+                    expiresIn: "1h"
+                });
+                
+                return res.status(200).send({
+                     mensagem: 'Autenticado com sucesso',
+                    token: token})
+            }
+            
+            return res.status(401).send({ mensagem: 'Falha na autenticação 3'})
+        });
+    });
+
+});
 
 module.exports = router;

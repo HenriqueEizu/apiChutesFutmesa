@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
-let config = require('./config.js');
+let config = require('../config.js');
 var cors = require('cors')
 
 router.options('/', cors()) // enable pre-flight request for DELETE 

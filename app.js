@@ -8,6 +8,7 @@ const rotaClubes = require('./routes/clubes');
 const rotaUsuarios = require('./routes/usuario')
 const rotaGrupoUsuario = require('./routes/grupousuario')
 const rotaEstados = require('./routes/estados');
+const rotaJogador = require('./routes/jogador')
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,6 +19,7 @@ app.use('/clubes',rotaClubes);
 app.use('/usuario',rotaUsuarios);
 app.use('/grupousuario',rotaGrupoUsuario);
 app.use('/estados',rotaEstados);
+app.use('/jogador',rotaJogador);
 
 
 module.exports = app;

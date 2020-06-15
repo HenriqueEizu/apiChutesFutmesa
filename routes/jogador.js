@@ -19,4 +19,10 @@ router.get('/VerificaNomeJogador', Login.obrigatorio, cors(),jogadorControllers.
 router.options('/Incluir',  bodyParser.json(),cors()) // enable pre-flight request for DELETE 
 router.post('/Incluir', Login.obrigatorio,cors(),jogadorControllers.IncluirJogador)
 
+router.options('/GetIdJogador/:id', cors()) // enable pre-flight request for DELETE 
+router.get('/GetIdJogador/:id',Login.obrigatorio, cors(), jogadorControllers.GetIdJogador)
+
+router.options('/Alterar/:id', bodyParser.json(),cors())
+router.put('/Alterar/:id', Login.obrigatorio, cors(), jogadorControllers.AlterarJogador);
+
 module.exports = router;

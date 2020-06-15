@@ -33,7 +33,8 @@ exports.GetAllJogador = (req,res) => {
         }
         return res.status(200).send(response.jogadores);
     }
-)}
+    )
+}
 
 exports.VerificaNomeJogador = (req,res) => {
     strSql : String;
@@ -81,9 +82,9 @@ exports.IncluirJogador = (req, res) => {
                     return false
                 };
                 strSql = "INSERT INTO HistoricoJogador ( HJ_JOID,HJ_JOAPELIDO,HJ_JOATIVO,HJ_CLID,HJ_HJDATACADASTRO) " ;
-                strSql = strSql + " VALUES (?,?,?,?,?)" ;
+                strSql = strSql + " VALUES (?,?,?,?,now())" ;
                 console.log(rows[0].JO_JOID + "gggggggg")
-                connection.query(strSql,[rows[0].JO_JOID,req.body.JO_JOAPELIDO,blnAtivo,req.body.JO_CLID,req.body.JO_JODATACADASTRO],( err, rows, fields) =>{
+                connection.query(strSql,[rows[0].JO_JOID,req.body.JO_JOAPELIDO,blnAtivo,req.body.JO_CLID],( err, rows, fields) =>{
                     console.log("passo 3");
                     if (err) {
                         console.log("erro no passo 3")
@@ -100,4 +101,63 @@ exports.IncluirJogador = (req, res) => {
         })
     })
 }
+
+exports.GetIdJogador = (req,res) => {
+    strSql : String;
+    const connection = mysql.createConnection(config)
+    strSql = "SELECT * FROM Jogador WHERE JO_JOID = ? "
+    
+    connection.query(strSql,[req.params.id],( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {return res.status(500).send({ error: err}) }
+        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhum jogador encontrado'})}
+        const response = {
+            JO_JOID: rows[0].JO_JOID,
+            JO_JONOME: rows[0].JO_JONOME,
+            JO_JOFOTO: rows[0].JO_JOFOTO,
+            JO_JOAPELIDO: rows[0].JO_JOAPELIDO,
+            JO_JOATIVO: rows[0].JO_JOATIVO,
+            JO_CLID : rows[0].JO_CLID,
+            US_USEMAIL : rows[0].US_USEMAIL,
+            JO_JODATACADASTRO : rows[0].JO_JODATACADASTRO
+        }
+        return res.status(200).send(response);
+    })
+}
+
+exports.AlterarJogador = (req, res) => {
+    strSql : String;
+    blnAtivo : Boolean;
+    if (req.body.JO_JOATIVO == ''){blnAtivo = false}else{blnAtivo = true}
+    strSql = "UPDATE JOGADOR SET JO_JONOME = ? ,JO_JOFOTO = ? , JO_JOAPELIDO = ? ,JO_JOATIVO = ? ";
+    strSql = strSql + ",JO_CLID = ? , JO_JODATACADASTRO = ? " ;
+    strSql = strSql + " WHERE JO_JOID = ? ";
+    console.log(strSql + req.body.JO_JONOME);
+    const connection = mysql.createConnection(config)
+    connection.beginTransaction(function(err) {
+        connection.query(strSql,[req.body.JO_JONOME,req.body.JO_JOFOTO,req.body.JO_JOAPELIDO,blnAtivo
+                                ,req.body.JO_CLID,req.body.JO_JODATACADASTRO, req.body.JO_JOID],( err, results, fields) =>{
+            if (err) {
+                connection.rollback();
+                return false
+            };
+            strSql = "INSERT INTO HistoricoJogador ( HJ_JOID,HJ_JOAPELIDO,HJ_JOATIVO,HJ_CLID,HJ_HJDATACADASTRO) " ;
+            strSql = strSql + " VALUES (?,?,?,?, now())" ;
+            connection.query(strSql,[req.body.JO_JOID,req.body.JO_JOAPELIDO,blnAtivo,req.body.JO_CLID],( err, rows, fields) =>{
+                console.log("passo 2");
+                if (err) {
+                    console.log(err + "erro passo 2")
+                    connection.rollback();
+                    return false
+                };
+                if (err){return false}
+                console.log("Jogador alterado com sucesso com o id:", results.insertedId)
+                connection.commit();
+                res.end()
+                return true;
+            })
+        })
+    })
+}
+
 

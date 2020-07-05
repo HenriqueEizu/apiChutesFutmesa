@@ -25,13 +25,13 @@ router.put('/Alterar/:id', Login.obrigatorio, cors(), competicaoControllers.Alte
 router.options('/upload', bodyParser.json(),cors())
 router.post('/upload', Login.obrigatorio, competicaoControllers.Upload); 
 
-router.options('/GetClubeId/:id', bodyParser.json(),cors())
-router.get('/GetClubeId/:id', Login.obrigatorio, cors(),competicaoControllers.GetCompeticaoId);
+router.options('/GetCompeticaoId/:id', bodyParser.json(),cors())
+router.get('/GetCompeticaoId/:id', Login.obrigatorio, cors(),competicaoControllers.GetCompeticaoId);
 
 router.post('/', (req, res, next) =>{
     res.status(201).send({
         mensagem: 'Clubes post'
     })
 })
-
+ 
 module.exports = router;

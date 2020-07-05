@@ -3,7 +3,7 @@ const config = require('../config');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-
+ 
 exports.GetAllUsuarios = (req,res) => {
     console.log(req.usuario);
     const connection = mysql.createConnection(config)

@@ -1,18 +1,17 @@
 const mysql = require('mysql');
 const config = require('../config');
 
-exports.GetAllCompeticoes = (req,res) => {
+exports.GetAllEquipes = (req,res) => {
     console.log(req.usuario);
     const connection = mysql.createConnection(config)
     strSql : String;
-    strSql = "SELECT	CP.*, RO.RO_RODESCRICAO, CJ.CJ_CJDESCRICAO "
-    strSql = strSql + " FROM	COMPETICOES CP "
-    strSql = strSql + " JOIN	RODADAS RO ON CP.CP_ROID = RO.RO_ROID "
-    strSql = strSql + " JOIN	CATEGORIAJOGO CJ ON CP.CP_CJID = CJ.CJ_CJID; "
+    strSql = "SELECT	EQ.*, US.US_USID, US.US_USNOMETRATAMENTO "
+    strSql = strSql + " FROM	EQUIPES EQ "
+    strSql = strSql + " JOIN	USUARIO US ON US.US_USID = EQ.EQ_USID; "
     connection.query(strSql,( err, rows, fields) =>{
         connection.destroy();
         if (err) {return res.status(500).send({ error: err}) }
-        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhum usuario encontrado'})}
+        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhuma Equipe encontrado'})}
         const response = {
             competicoes: rows.map(cp => {
                 return {
@@ -41,7 +40,82 @@ exports.GetAllCompeticoes = (req,res) => {
     }
 )}
 
-exports.ExcluirCompeticao = (req, res) => {
+exports.RankingJogadorStatus = (req,res) => {
+    console.log(req.usuario);
+    const connection = mysql.createConnection(config)
+    strSql : String;
+    strSql = "SELECT     A.JO_JOID, A.JO_JOAPELIDO, A.JO_JOFOTO, A.RJ_RJDATA, A.PR_PRPRECO,A.RJ_RJPOSICAO AS RJ_RJPOSICAOATUAL, B.RJ_RJPOSICAO, A.CL_CLID, A.CL_CLEMBLEMA,A.CL_CLSIGLA, A.JO_JOATIVO, "
+    strSql = strSql + "  CASE 	WHEN  A.RJ_RJPOSICAO > B.RJ_RJPOSICAO THEN 'DESCE' "
+    strSql = strSql + "         WHEN  A.RJ_RJPOSICAO < B.RJ_RJPOSICAO THEN 'SOBE' "
+    strSql = strSql + "         ELSE 'IGUAL'"
+    strSql = strSql + "  END AS STATUSPOSICAO, "
+    strSql = strSql + "  ABS(A.RJ_RJPOSICAO - B.RJ_RJPOSICAO) AS POSICOES "
+    strSql = strSql + "  FROM		( "
+    strSql = strSql + "             SELECT		JO.JO_JOID, JO.JO_JOAPELIDO, JO.JO_JOFOTO, RJ.RJ_RJDATA, PR.PR_PRPRECO,RJ.RJ_RJPOSICAO, CL.CL_CLID, CL.CL_CLEMBLEMA,CL.CL_CLSIGLA, JO.JO_JOATIVO, "
+    strSql = strSql + "                          row_number() OVER (partition by JO.JO_JOID, JO.JO_JOAPELIDO, JO.JO_JOFOTO ORDER BY RJ.RJ_RJDATA DESC) AS CTR "
+    strSql = strSql + "             FROM		JOGADOR JO "
+    strSql = strSql + "             JOIN		RANKINGJOGADORES RJ ON JO.JO_JOID = RJ.RJ_JOID  " 
+    strSql = strSql + "             JOIN		PRECORANKING PR ON PR.PR_PRPOSRANKING = RJ.RJ_RJPOSICAO "
+    strSql = strSql + "             JOIN		CLUBES CL ON CL.CL_CLID = JO.JO_CLID "
+    strSql = strSql + "             ) A "
+    strSql = strSql + " JOIN		(SELECT	* "
+    strSql = strSql + "             FROM	RANKINGJOGADORES RJ1 "
+    strSql = strSql + "             JOIN	JOGADOR JO1 ON RJ1.RJ_JOID = JO1.JO_JOID ) B ON  B.JO_JOID = A.JO_JOID AND B.RJ_RJDATA = DATE_ADD(A.RJ_RJDATA, INTERVAL -1 MONTH) "
+    strSql = strSql + " WHERE 		A.CTR = 1 "
+    connection.query(strSql,( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {return res.status(500).send({ error: err}) }
+        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhum status de jogador encontrado'})}
+        const response = {
+            rankingJogStatus: rows.map(rj => {
+                return {
+                    JO_JOID : rj.JO_JOID,
+                    JO_JOAPELIDO : rj.JO_JOAPELIDO,
+                    JO_JOFOTO : rj.JO_JOFOTO,
+                    RJ_RJDATA : rj.RJ_RJDATA,
+                    PR_PRPRECO : rj.PR_PRPRECO,
+                    RJ_RJPOSICAOATUAL : rj.RJ_RJPOSICAOATUAL,
+                    RJ_RJPOSICAO : rj.RJ_RJPOSICAO,
+                    STATUSPOSICAO : rj.STATUSPOSICAO,
+                    POSICOES : rj.POSICOES,
+                    CL_CLID : rj.CL_CLID,
+                    CL_CLEMBLEMA : rj.CL_CLEMBLEMA,
+                    CL_CLSIGLA : rj.CL_CLSIGLA,
+                    JO_JOATIVO : rj.JO_JOATIVO
+                }
+            })
+        }
+        return res.status(200).send(response.rankingJogStatus);
+    }
+)}
+
+exports.ImagemEscudos = (req,res) => {
+    console.log(req.usuario);
+    const connection = mysql.createConnection(config)
+    strSql : String;
+    strSql = "SELECT	* "
+    strSql = strSql + " FROM	IMAGENSESCUDO  "
+    connection.query(strSql,( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {return res.status(500).send({ error: err}) }
+        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhuma Imagem encontrado'})}
+        const response = {
+            competicoes: rows.map(im => {
+                return {
+                    IM_IMIG : im.IM_IMIG,
+                    IM_IMPATH : im.IM_IMPATH,
+                    IM_IMOBSERVACAO : im.IM_IMOBSERVACAO,
+                    IM_IMATIVO : im.IM_IMATIVO,
+                    IM_IMDATACADASTRO :  im.IM_IMDATACADASTRO
+                }
+            })
+        }
+        return res.status(200).send(response.competicoes);
+    }
+)}
+
+
+exports.ExcluirEquipe = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
     strSql = "DELETE FROM COMPETICOES WHERE CP_CPID = ? ";
@@ -66,7 +140,7 @@ exports.ExcluirCompeticao = (req, res) => {
     })
 }
 
-exports.IncluirCompeticao = (req, res) => {
+exports.IncluirEquipe = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
     const connection = mysql.createConnection(config);
@@ -98,7 +172,7 @@ exports.IncluirCompeticao = (req, res) => {
     return true;
 }
 
-exports.AlterarCompeticao = (req, res) => {
+exports.AlterarEquipe = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
     if (req.body.CP_CPATIVO == ''){
@@ -141,7 +215,7 @@ exports.Upload = function (req, res) {
             console.log(fields);
             console.log(files.fileKey.path);
         var oldpath = files.fileKey.path;
-        var newpath = 'C:/Users/h_eiz/Documents/chutesfutmesa/src/assets/images/fotosCompeticoes/' + files.fileKey.name;
+        var newpath = 'C:/Users/h_eiz/Documents/chutesfutmesa/src/assets/images/fotosEquipes/' + files.fileKey.name;
         fileExists(newpath).then(exists => {
             console.log(exists + "jjjjjj")
             if (exists == false){
@@ -159,7 +233,7 @@ exports.Upload = function (req, res) {
     });
   };
 
-exports.GetCompeticaoId = (req, res) => {
+exports.GetEquipeId = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
     strSql = "SELECT * FROM COMPETICOES WHERE CP_CPID = ? ";

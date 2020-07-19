@@ -27,7 +27,8 @@ exports.GetAllJogador = (req,res) => {
                         CL_CLSIGLA  : jo.CL_CLSIGLA,
                         CL_CLEMBLEMA : jo.CL_CLEMBLEMA,
                     },
-                    JO_JODATACADASTRO : jo.JO_JODATACADASTRO
+                    JO_JODATACADASTRO : jo.JO_JODATACADASTRO,
+                    JO_JOMATRICULA : jo.JO_JOMATRICULA
                 }
             })
         }
@@ -42,7 +43,7 @@ exports.VerificaNomeJogador = (req,res) => {
                  apelidoJogador: null}
         }
     const connection = mysql.createConnection(config)
-    strSql = "SELECT JO_JOAPELIDO, JO_JONOME FROM JOGADOR "
+    strSql = "SELECT JO_JOAPELIDO, JO_JONOME, JO_JOMATRICULA FROM JOGADOR "
     connection.query(strSql,( err, rows, fields) =>{
         connection.destroy();
         if (err) {return res.status(500).send({ error: err}) }
@@ -50,7 +51,8 @@ exports.VerificaNomeJogador = (req,res) => {
             response = {
             jogadores: rows.map( jo => { 
                 return { nomeJogador: jo.JO_JONOME,
-                         apelidoJogador: jo.JO_JOAPELIDO}
+                         apelidoJogador: jo.JO_JOAPELIDO,
+                         matriculaJogador: jo.JO_JOMATRICULA}
             })
         }
         return res.status(200).send(response);
@@ -62,12 +64,12 @@ exports.IncluirJogador = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
     if (req.body.JO_JOATIVO == ''){blnAtivo = false} else{blnAtivo = true}
-    strSql = "INSERT INTO Jogador ( JO_JONOME,JO_JOFOTO,JO_JOAPELIDO,JO_JOATIVO, JO_CLID,JO_JODATACADASTRO) " ;
-    strSql = strSql + " VALUES (?,?,?,?,?,?)" ;
+    strSql = "INSERT INTO Jogador ( JO_JONOME,JO_JOFOTO,JO_JOAPELIDO,JO_JOATIVO, JO_CLID,JO_JODATACADASTRO, JO_JOMATRICULA) " ;
+    strSql = strSql + " VALUES (?,?,?,?,?,?,?)" ;
     const connection = mysql.createConnection(config)
     connection.beginTransaction(function(err) {
         connection.query(strSql,[req.body.JO_JONOME,req.body.JO_JOFOTO,req.body.JO_JOAPELIDO
-            ,blnAtivo,req.body.JO_CLID,req.body.JO_JODATACADASTRO],( err, results, fields) =>{
+            ,blnAtivo,req.body.JO_CLID,req.body.JO_JODATACADASTRO, req.body.JO_JOMATRICULA],( err, results, fields) =>{
             console.log("passo 1");
             if (err) {
                 connection.rollback();
@@ -119,7 +121,8 @@ exports.GetIdJogador = (req,res) => {
             JO_JOATIVO: rows[0].JO_JOATIVO,
             JO_CLID : rows[0].JO_CLID,
             US_USEMAIL : rows[0].US_USEMAIL,
-            JO_JODATACADASTRO : rows[0].JO_JODATACADASTRO
+            JO_JODATACADASTRO : rows[0].JO_JODATACADASTRO,
+            JO_JOMATRICULA : rows[0].JO_JOMATRICULA
         }
         return res.status(200).send(response);
     })
@@ -130,13 +133,13 @@ exports.AlterarJogador = (req, res) => {
     blnAtivo : Boolean;
     if (req.body.JO_JOATIVO == ''){blnAtivo = false}else{blnAtivo = true}
     strSql = "UPDATE JOGADOR SET JO_JONOME = ? ,JO_JOFOTO = ? , JO_JOAPELIDO = ? ,JO_JOATIVO = ? ";
-    strSql = strSql + ",JO_CLID = ? , JO_JODATACADASTRO = ? " ;
+    strSql = strSql + ",JO_CLID = ? , JO_JODATACADASTRO = ?, JO_JOMATRICULA = ?" ;
     strSql = strSql + " WHERE JO_JOID = ? ";
     console.log(strSql + req.body.JO_JONOME);
     const connection = mysql.createConnection(config)
     connection.beginTransaction(function(err) {
         connection.query(strSql,[req.body.JO_JONOME,req.body.JO_JOFOTO,req.body.JO_JOAPELIDO,blnAtivo
-                                ,req.body.JO_CLID,req.body.JO_JODATACADASTRO, req.body.JO_JOID],( err, results, fields) =>{
+                                ,req.body.JO_CLID,req.body.JO_JODATACADASTRO, req.body.JO_JOMATRICULA, req.body.JO_JOID],( err, results, fields) =>{
             if (err) {
                 connection.rollback();
                 return false

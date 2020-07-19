@@ -13,8 +13,14 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.options('/', cors()) // enable pre-flight request for DELETE 
 router.get('/', Login.obrigatorio, cors(), equipeControllers.GetAllEquipes)
 
-router.options('/RankingJogadorStatus', cors()) // enable pre-flight request for DELETE 
-router.get('/RankingJogadorStatus', Login.obrigatorio, cors(), equipeControllers.RankingJogadorStatus)
+router.options('/VerificaEquipe', cors()) // enable pre-flight request for DELETE 
+router.get('/VerificaEquipe', Login.obrigatorio, cors(),equipeControllers.VerificaEquipe);
+
+router.options('/RankingJogadorStatus/:id', cors()) // enable pre-flight request for DELETE 
+router.get('/RankingJogadorStatus/:id', Login.obrigatorio, cors(), equipeControllers.RankingJogadorStatus)
+
+router.options('/GetRankingEquipes/:id', cors()) // enable pre-flight request for DELETE 
+router.get('/GetRankingEquipes/:id', Login.obrigatorio, cors(), equipeControllers.RankingEquipes)
 
 router.options('/imagemEscudo', cors()) // enable pre-flight request for DELETE 
 router.get('/imagemEscudo', Login.obrigatorio, cors(), equipeControllers.ImagemEscudos)
@@ -22,14 +28,11 @@ router.get('/imagemEscudo', Login.obrigatorio, cors(), equipeControllers.ImagemE
 router.options('/Excluir/:id', bodyParser.json(),cors())
 router.delete('/Excluir/:id', Login.obrigatorio, cors(),equipeControllers.ExcluirEquipe);
 
-router.options('/Incluir', bodyParser.json(),cors())
-router.post('/Incluir',Login.obrigatorio, cors(), equipeControllers.IncluirEquipe);
+router.options('/Incluir/:id', bodyParser.json(),cors())
+router.put('/Incluir/:id',Login.obrigatorio, cors(), equipeControllers.IncluirEquipe);
 
 router.options('/Alterar/:id', bodyParser.json(),cors())
 router.put('/Alterar/:id', Login.obrigatorio, cors(), equipeControllers.AlterarEquipe);
-
-router.options('/upload', bodyParser.json(),cors())
-router.post('/upload', Login.obrigatorio, equipeControllers.Upload); 
 
 router.options('/GetEquipeId/:id', bodyParser.json(),cors())
 router.get('/GetEquipeId/:id', Login.obrigatorio, cors(),equipeControllers.GetEquipeId);

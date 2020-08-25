@@ -13,6 +13,9 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.options('/', cors()) // enable pre-flight request for DELETE 
 router.get('/', Login.obrigatorio, cors(), competicaoControllers.GetAllCompeticoes)
 
+router.options('/GetAnoCompeticao', cors()) // enable pre-flight request for DELETE 
+router.get('/GetAnoCompeticao', Login.obrigatorio, cors(), competicaoControllers.GetAnoCompeticao)
+
 router.options('/Excluir/:id', bodyParser.json(),cors())
 router.delete('/Excluir/:id', Login.obrigatorio, cors(),competicaoControllers.ExcluirCompeticao);
 

@@ -62,7 +62,7 @@ exports.RankingJogadorStatus = (req,res) => {
     strSql = strSql + "                         JOIN  EQUIPES EQ ON EQ.EQ_EQID = EJ.EJ_EQID AND EQ.EQ_USID = ? "
     strSql = strSql + "                         JOIN  USUARIO US ON US.US_USID = EQ.EQ_USID) EQJ ON EQJ.EJ_JOID = JO.JO_JOID "
     strSql = strSql + "             ) A "
-    strSql = strSql + " JOIN		(SELECT	* "
+    strSql = strSql + " LEFT JOIN	(SELECT	* "
     strSql = strSql + "             FROM	RANKINGJOGADORES RJ1 "
     strSql = strSql + "             JOIN	JOGADOR JO1 ON RJ1.RJ_JOID = JO1.JO_JOID ) B ON  B.JO_JOID = A.JO_JOID AND B.RJ_RJDATA = DATE_ADD(A.RJ_RJDATA, INTERVAL -1 MONTH) "
     strSql = strSql + " WHERE 		A.CTR = 1 "
@@ -117,7 +117,20 @@ exports.RankingEquipes = (req,res) => {
     connection.query(strSql,( err, rows, fields) =>{
         connection.destroy();
         if (err) {return res.status(500).send({ error: err}) }
-        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhum status de jogador encontrado'})}
+        if (rows.length < 1){ 
+            const responseNull = {
+                rankingEquipes: {
+                    POSICAO : null,
+                    TOTAL : null,
+                    AJ_CPDESCRICAO : null,
+                    AJ_EQNOME : null,
+                    AJ_RODESCRICAO : null,
+                    AJ_USNOMETRATAMENTO : null,
+                    AJ_EQESCUDO : null,
+                }
+            }
+            return res.status(200).send(responseNull)
+        }
         const response = {
             rankingEquipes: rows.map(re => {
                 return {
@@ -134,7 +147,6 @@ exports.RankingEquipes = (req,res) => {
         return res.status(200).send(response.rankingEquipes);
     }
 )}
-
 
 
 exports.ImagemEscudos = (req,res) => {
@@ -191,10 +203,6 @@ exports.ExcluirEquipe = (req, res) => {
 exports.AlterarEquipe = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
-    strJogadores : String;
-    strJogadores = req.params.id;
-    var idJogadores = strJogadores.split(",");
-    i : Number;
     const connection = mysql.createConnection(config);
     if (req.body.EQ_EQATIVO == ''){
         blnAtivo = false
@@ -205,45 +213,17 @@ exports.AlterarEquipe = (req, res) => {
     strSql = "UPDATE EQUIPES SET EQ_EQNOME = ?, EQ_USID = ?, EQ_EQESCUDO = ?, EQ_EQATIVO = ? , EQ_EQOBSERVACAO = ?  "
     strSql = strSql + " WHERE EQ_EQID = ? " ;
     console.log(strSql);
-    connection.beginTransaction(function(err) {
-        connection.query(strSql,[req.body.EQ_EQNOME,req.body.EQ_USID,req.body.EQ_EQESCUDO,blnAtivo,req.body.EQ_EQOBSERVACAO, req.body.EQ_EQID],( err, results, fields) =>{
-            if (err) {connection.rollback(); return res.status(500).send({ error: err}) };
-            strSql = "DELETE FROM EQUIPESJOGADOR WHERE EJ_EQID = ?"
-            connection.query(strSql,[req.body.EQ_EQID],( err, results, fields) =>{
-                if (err) {connection.rollback();return res.status(500).send({ error: err}) }
-                idEquipe : Number;
-                idEquipe = req.body.EQ_EQID
-                console.log(idEquipe + "  0000000")
-
-                if (idEquipe > 0){
-                    strSql = "";
-                    for(i = 0; i<= idJogadores.length -1 ; i++){
-                        strSql = "INSERT INTO EQUIPESJOGADOR (EJ_EQID,EJ_JOID,EJ_EJOBSERVACAO,EJ_EJATIVO,EJ_EJDATACADASTRO) "
-                        strSql = strSql + " VALUES (?," + idJogadores[i] + ",null,1,Now()) ;" ;
-                        console.log(strSql);
-                        connection.query(strSql,[idEquipe],( err, results, fields) =>{
-                            if (err) {connection.rollback();return res.status(500).send({ error: err}) }
-                            // connection.destroy();
-                            console.log (i + "kkkk" + (idJogadores.length -2))
-                            if ( i == idJogadores.length ){
-                                connection.commit();
-                                res.end()
-                            }
-                        })
-                    }
-                }
-            })
-        })
+    connection.query(strSql,[req.body.EQ_EQNOME,req.body.EQ_USID,req.body.EQ_EQESCUDO,blnAtivo,req.body.EQ_EQOBSERVACAO, req.body.EQ_EQID],( err, results, fields) =>{
+        if (err) {return res.status(500).send({ error: err}) };
+        connection.destroy();
+        res.end()
+        return true;
     })
 }
 
 exports.IncluirEquipe = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
-    strJogadores : String;
-    strJogadores = req.params.id;
-    var idJogadores = strJogadores.split(",");
-    i : Number;
     const connection = mysql.createConnection(config);
     if (req.body.EQ_EQATIVO == ''){
         blnAtivo = false
@@ -254,43 +234,13 @@ exports.IncluirEquipe = (req, res) => {
     strSql = "INSERT INTO EQUIPES (EQ_EQNOME,EQ_USID,EQ_EQESCUDO,EQ_EQATIVO,EQ_EQOBSERVACAO,EQ_EQDATACADASTRO) "
     strSql = strSql + " VALUES (?,?,?,?,?,Now()) ;" ;
     console.log(strSql);
-    connection.beginTransaction(function(err) {
-        connection.query(strSql,[req.body.EQ_EQNOME,req.body.EQ_USID,req.body.EQ_EQESCUDO,blnAtivo,req.body.EQ_EQOBSERVACAO],( err, results, fields) =>{
-            if (err) {connection.rollback(); return res.status(500).send({ error: err}) };
-            strSql = "SELECT EQ_EQID FROM EQUIPES WHERE EQ_EQNOME = ?"
-            console.log(strSql + "gggg " + req.body.EQ_EQNOME)
-            connection.query(strSql,[req.body.EQ_EQNOME],( err, results, fields) =>{
-                if (err) {connection.rollback();return res.status(500).send({ error: err}) }
-                idEquipe : Number;
-                idEquipe = results[0].EQ_EQID
-                console.log("ok 2" + results[0].EQ_EQID + idEquipe)
-
-                if (idEquipe > 0){
-                    console.log("ok 3")
-                    strSql = "";
-                    for(i = 0; i<= idJogadores.length -1 ; i++){
-                        strSql = "INSERT INTO EQUIPESJOGADOR (EJ_EQID,EJ_JOID,EJ_EJOBSERVACAO,EJ_EJATIVO,EJ_EJDATACADASTRO) "
-                        strSql = strSql + " VALUES (?," + idJogadores[i] + ",null,1,Now()) ;" ;
-                        console.log(strSql);
-                        connection.query(strSql,[idEquipe],( err, results, fields) =>{
-                            if (err) {connection.rollback();return res.status(500).send({ error: err}) }
-                            // connection.destroy();
-                            console.log (i + "kkkk" + (idJogadores.length -2))
-                            if ( i == idJogadores.length ){
-                                connection.commit();
-                                res.end()
-                            }
-                        })
-                    }
-                }
-            })
-        })
+    connection.query(strSql,[req.body.EQ_EQNOME,req.body.EQ_USID,req.body.EQ_EQESCUDO,blnAtivo,req.body.EQ_EQOBSERVACAO],( err, results, fields) =>{
+        if (err) {return res.status(500).send({ error: err}) };
+        connection.destroy();
+        res.end()
+        return true;
     })
-    
 }
-
-
-
 
 exports.GetEquipeId = (req, res) => {
     strSql : String;
@@ -335,7 +285,13 @@ exports.VerificaEquipe = (req,res) => {
     connection.query(strSql,( err, rows, fields) =>{
         connection.destroy();
         if (err) {return res.status(500).send({ error: err}) }
-        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhum clube encontrado'})}
+        if (rows.length < 1){ 
+            const responseNull = {
+                clubes: { nomeEquipe: null,
+                        }
+                            }
+            return res.status(200).send(responseNull);
+        }
         const response = {
             clubes: rows.map( eq => { 
                 return { nomeEquipe: eq.EQ_EQNOME,

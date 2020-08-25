@@ -76,7 +76,11 @@ exports.VerificaLogin = (req,res) => {
     connection.query(strSql,( err, rows, fields) =>{
         connection.destroy();
         if (err) {return res.status(500).send({ error: err}) }
-        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhum login encontrado'})}
+        if (rows.length < 1){ 
+            const responseNull = {
+                usuarios  : { login: 'nao encontrado', email: 'nao encontrado' }
+            }
+            return res.status(200).send(responseNull);}
         const response = {
             usuarios: rows.map( us => { 
                 return { login: us.US_USLOGIN,
@@ -90,6 +94,7 @@ exports.VerificaLogin = (req,res) => {
 exports.Incluirusuario = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
+    console.log("chegou")
     if (req.body.US_USATIVO == ''){blnAtivo = false} else{blnAtivo = true}
     bcrypt.hash(req.body.US_USSENHA, 10, (errBcrypt, hash) => {
     if (errBcrypt) {return res.status(500).send({ error: errBcrypt})}

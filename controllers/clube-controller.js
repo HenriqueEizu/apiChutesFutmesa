@@ -4,7 +4,7 @@ const config = require('../config');
 exports.GetAllClubes = (req,res) => {
     console.log(req.usuario);
     const connection = mysql.createConnection(config)
-    connection.query("SELECT * FROM Clubes",( err, rows, fields) =>{
+    connection.query("SELECT * FROM CLUBES",( err, rows, fields) =>{
         if (err) {return res.status(500).send({ error: err}) }
         res.json(rows)
         connection.destroy();

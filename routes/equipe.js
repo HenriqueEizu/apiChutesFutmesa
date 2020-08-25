@@ -28,14 +28,15 @@ router.get('/imagemEscudo', Login.obrigatorio, cors(), equipeControllers.ImagemE
 router.options('/Excluir/:id', bodyParser.json(),cors())
 router.delete('/Excluir/:id', Login.obrigatorio, cors(),equipeControllers.ExcluirEquipe);
 
-router.options('/Incluir/:id', bodyParser.json(),cors())
-router.put('/Incluir/:id',Login.obrigatorio, cors(), equipeControllers.IncluirEquipe);
+router.options('/Incluir', bodyParser.json(),cors())
+router.put('/Incluir',Login.obrigatorio, cors(), equipeControllers.IncluirEquipe);
 
-router.options('/Alterar/:id', bodyParser.json(),cors())
-router.put('/Alterar/:id', Login.obrigatorio, cors(), equipeControllers.AlterarEquipe);
+router.options('/Alterar', bodyParser.json(),cors())
+router.put('/Alterar', Login.obrigatorio, cors(), equipeControllers.AlterarEquipe);
 
 router.options('/GetEquipeId/:id', bodyParser.json(),cors())
 router.get('/GetEquipeId/:id', Login.obrigatorio, cors(),equipeControllers.GetEquipeId);
+
 
 router.post('/', (req, res, next) =>{
     res.status(201).send({

@@ -12,6 +12,10 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 router.options('/', cors()) // enable pre-flight request for DELETE 
 router.get('/', Login.obrigatorio, cors(), ptscompeticaojogadorControllers.GetAllPtsCompeticoesJogadores)
+
+router.options('/TopPontuadores', cors()) // enable pre-flight request for DELETE 
+router.get('/TopPontuadores', Login.obrigatorio, cors(), ptscompeticaojogadorControllers.TopPontuadores)
+
  
 router.options('/Excluir/:id', bodyParser.json(),cors())
 router.delete('/Excluir/:id', Login.obrigatorio, cors(),ptscompeticaojogadorControllers.ExcluirPtsCompeticaoJogador);
@@ -24,6 +28,10 @@ router.put('/Alterar/:id', Login.obrigatorio, cors(), ptscompeticaojogadorContro
 
 router.options('/GetPtsCompeticaoJogadorId/:id', bodyParser.json(),cors())
 router.get('/GetPtsCompeticaoJogadorId/:id', Login.obrigatorio, cors(),ptscompeticaojogadorControllers.GetPtsCompeticaoJogadorId);
+
+router.options('/ImportarPontosCompeticao', bodyParser.json(),cors())
+router.post('/ImportarPontosCompeticao',Login.obrigatorio, cors(), ptscompeticaojogadorControllers.ImportarPontosCompeticao);
+
 
 router.post('/', (req, res, next) =>{
     res.status(201).send({

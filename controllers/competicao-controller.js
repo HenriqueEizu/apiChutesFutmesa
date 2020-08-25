@@ -41,6 +41,31 @@ exports.GetAllCompeticoes = (req,res) => {
     }
 )}
 
+exports.GetAnoCompeticao = (req,res) => {
+    console.log(req.usuario);
+    const connection = mysql.createConnection(config)
+    strSql : String;
+    strSql = "SELECT	DISTINCT YEAR(CP.CP_CPDATAINICIO) AS ANO "
+    strSql = strSql + " FROM	COMPETICOES CP "
+    strSql = strSql + " WHERE   CP_CJID = 1 "
+    strSql = strSql + " ORDER BY YEAR(CP.CP_CPDATAINICIO) DESC "
+    connection.query(strSql,( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {return res.status(500).send({ error: err}) }
+        if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhum usuario encontrado'})}
+        const response = {
+            competicoes: rows.map(cp => {
+                return {
+                    ANO : cp.ANO,
+                }
+            })
+        }
+        return res.status(200).send(response.competicoes);
+    }
+)}
+
+
+
 exports.ExcluirCompeticao = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;

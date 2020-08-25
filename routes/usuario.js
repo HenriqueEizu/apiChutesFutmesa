@@ -22,8 +22,8 @@ router.get('/verificaLogin', cors(), usuariosControllers.VerificaLogin)
 router.options('/GetIdusuario/:id', cors()) // enable pre-flight request for DELETE 
 router.get('/GetIdusuario/:id',Login.obrigatorio, cors(), usuariosControllers.GetIdusuario)
 
-router.options('/Incluir',  bodyParser.json(),cors()) // enable pre-flight request for DELETE 
-router.post('/Incluir', Login.obrigatorio,cors(),usuariosControllers.Incluirusuario)
+router.options('/Incluir',  cors()) // enable pre-flight request for DELETE 
+router.post('/Incluir', cors(), usuariosControllers.Incluirusuario)
 
 router.options('/login', cors()) // enable pre-flight request for DELETE 
 router.post('/login',cors(),usuariosControllers.Login)

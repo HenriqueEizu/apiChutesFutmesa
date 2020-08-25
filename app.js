@@ -14,6 +14,9 @@ const rotaCategoriaJogo = require('./routes/categoriajogo')
 const rotaCompeticao = require('./routes/competicao')
 const rotaPtsCompeticaoJogador = require('./routes/ptscompeticaojogador')
 const rotaEquipe = require('./routes/equipe')
+const rotaRanking = require('./routes/ranking')
+const rotaEquipeJogador = require('./routes/equipejogador')
+const rotaJogos = require('./routes/jogos')
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,6 +33,9 @@ app.use('/categoriajogo',rotaCategoriaJogo);
 app.use('/competicao',rotaCompeticao);
 app.use('/ptscompeticaojogador',rotaPtsCompeticaoJogador)
 app.use('/equipe',rotaEquipe);
+app.use('/ranking',rotaRanking);
+app.use('/equipejogador',rotaEquipeJogador)
+app.use('/jogos',rotaJogos)
 
 
 module.exports = app;

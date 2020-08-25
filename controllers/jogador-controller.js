@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const config = require('../config');
+const { timeout } = require('../apiChutesFutmesa/routes/config');
 
 exports.GetAllJogador = (req,res) => {
     console.log(req.usuario);
@@ -53,7 +54,7 @@ exports.VerificaNomeJogador = (req,res) => {
                 return { nomeJogador: jo.JO_JONOME,
                          apelidoJogador: jo.JO_JOAPELIDO,
                          matriculaJogador: jo.JO_JOMATRICULA}
-            })
+            }) 
         }
         return res.status(200).send(response);
     })
@@ -64,7 +65,7 @@ exports.IncluirJogador = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
     if (req.body.JO_JOATIVO == ''){blnAtivo = false} else{blnAtivo = true}
-    strSql = "INSERT INTO Jogador ( JO_JONOME,JO_JOFOTO,JO_JOAPELIDO,JO_JOATIVO, JO_CLID,JO_JODATACADASTRO, JO_JOMATRICULA) " ;
+    strSql = "INSERT INTO JOGADOR ( JO_JONOME,JO_JOFOTO,JO_JOAPELIDO,JO_JOATIVO, JO_CLID,JO_JODATACADASTRO, JO_JOMATRICULA) " ;
     strSql = strSql + " VALUES (?,?,?,?,?,?,?)" ;
     const connection = mysql.createConnection(config)
     connection.beginTransaction(function(err) {
@@ -75,7 +76,7 @@ exports.IncluirJogador = (req, res) => {
                 connection.rollback();
                 return false
             };
-            strSql = " SELECT MAX(JO_JOID) AS JO_JOID FROM  Jogador "
+            strSql = " SELECT MAX(JO_JOID) AS JO_JOID FROM  JOGADOR "
             connection.query(strSql,( err, rows, fields) =>{
                 console.log("passo 2");
                 if (err) {
@@ -83,7 +84,7 @@ exports.IncluirJogador = (req, res) => {
                     connection.rollback();
                     return false
                 };
-                strSql = "INSERT INTO HistoricoJogador ( HJ_JOID,HJ_JOAPELIDO,HJ_JOATIVO,HJ_CLID,HJ_HJDATACADASTRO) " ;
+                strSql = "INSERT INTO HISTORICOJOGADOR ( HJ_JOID,HJ_JOAPELIDO,HJ_JOATIVO,HJ_CLID,HJ_HJDATACADASTRO) " ;
                 strSql = strSql + " VALUES (?,?,?,?,now())" ;
                 console.log(rows[0].JO_JOID + "gggggggg")
                 connection.query(strSql,[rows[0].JO_JOID,req.body.JO_JOAPELIDO,blnAtivo,req.body.JO_CLID],( err, rows, fields) =>{
@@ -107,7 +108,7 @@ exports.IncluirJogador = (req, res) => {
 exports.GetIdJogador = (req,res) => {
     strSql : String;
     const connection = mysql.createConnection(config)
-    strSql = "SELECT * FROM Jogador WHERE JO_JOID = ? "
+    strSql = "SELECT * FROM JOGADOR WHERE JO_JOID = ? "
     
     connection.query(strSql,[req.params.id],( err, rows, fields) =>{
         connection.destroy();
@@ -144,7 +145,7 @@ exports.AlterarJogador = (req, res) => {
                 connection.rollback();
                 return false
             };
-            strSql = "INSERT INTO HistoricoJogador ( HJ_JOID,HJ_JOAPELIDO,HJ_JOATIVO,HJ_CLID,HJ_HJDATACADASTRO) " ;
+            strSql = "INSERT INTO HISTORICOJOGADOR ( HJ_JOID,HJ_JOAPELIDO,HJ_JOATIVO,HJ_CLID,HJ_HJDATACADASTRO) " ;
             strSql = strSql + " VALUES (?,?,?,?, now())" ;
             connection.query(strSql,[req.body.JO_JOID,req.body.JO_JOAPELIDO,blnAtivo,req.body.JO_CLID],( err, rows, fields) =>{
                 console.log("passo 2");

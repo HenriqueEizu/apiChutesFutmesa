@@ -155,12 +155,12 @@ exports.IncluirPtsCompeticaoJogador = (req, res) => {
     }
     strSql = "INSERT INTO PTSCOMPETICOESJOGADORES (PJ_CPID,PJ_JOID,PJ_JOMATRICULA,PJ_PJCOLOCACAO,PJ_PJPONTOSGANHOS,";
     strSql = strSql + " PJ_PJJOGOS,PJ_PJVITORIAS,PJ_PJEMPATE,PJ_PJDERROTA,PJ_PJGOLSPRO,PJ_PJGOLCONTRA,PJ_PJSALDOGOLS, ";
-    strSql = strSql + " PJ_PJPONTOS,PJ_PJOBSERVACAO,PJ_PJATIVO,PJ_PJDATACADASTRO) ";
-    strSql = strSql + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,Now())" ;
+    strSql = strSql + " PJ_PJPONTOS,PJ_PJOBSERVACAO,PJ_PJATIVO,PJ_JGID, PJ_PJDATACADASTRO) ";
+    strSql = strSql + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,Now())" ;
     console.log(strSql);
     connection.query(strSql,[req.body.PJ_CPID,req.body.PJ_JOID,req.body.PJ_JOMATRICULA,req.body.PJ_PJCOLOCACAO,req.body.PJ_PJPONTOSGANHOS,
         req.body.PJ_PJJOGOS,req.body.PJ_PJVITORIAS,req.body.PJ_PJEMPATE,req.body.PJ_PJDERROTA,req.body.PJ_PJGOLSPRO,req.body.PJ_PJGOLCONTRA,req.body.PJ_PJSALDOGOLS,
-        req.body.PJ_PJPONTOS,req.body.PJ_PJOBSERVACAO,blnAtivo ],( err, results, fields) =>{
+        req.body.PJ_PJPONTOS,req.body.PJ_PJOBSERVACAO,blnAtivo,req.body.PJ_JGID ],( err, results, fields) =>{
         if (err){
             console.log(err)
             res.sendStatus(500)
@@ -188,14 +188,14 @@ exports.AlterarPtsCompeticaoJogador = (req, res) => {
     }
     strSql = "UPDATE PTSCOMPETICOESJOGADORES SET PJ_CPID = ? ,PJ_JOID = ? , PJ_JOMATRICULA = ? ,PJ_PJCOLOCACAO = ? ,PJ_PJPONTOSGANHOS = ? ";
     strSql = strSql + ",PJ_PJJOGOS = ? ,PJ_PJVITORIAS = ? ,PJ_PJEMPATE = ? ,PJ_PJDERROTA = ? ,PJ_PJGOLSPRO = ? ,PJ_PJGOLCONTRA = ? ,PJ_PJSALDOGOLS = ? ";
-    strSql = strSql + ",PJ_PJPONTOS = ? ,PJ_PJOBSERVACAO = ? ,PJ_PJATIVO = ? ";
+    strSql = strSql + ",PJ_PJPONTOS = ? ,PJ_PJOBSERVACAO = ? ,PJ_PJATIVO = ?, PJ_JGID = ? ";
     strSql = strSql + " WHERE PJ_PJID = ? ";
 
     console.log(strSql);
     const connection = mysql.createConnection(config)
     connection.query(strSql,[req.body.PJ_CPID,req.body.PJ_JOID,req.body.PJ_JOMATRICULA,req.body.PJ_PJCOLOCACAO,req.body.PJ_PJPONTOSGANHOS
                             ,req.body.PJ_PJJOGOS,req.body.PJ_PJVITORIAS,req.body.PJ_PJEMPATE,req.body.PJ_PJDERROTA,req.body.PJ_PJGOLSPRO,req.body.PJ_PJGOLCONTRA,req.body.PJ_PJSALDOGOLS
-                            ,req.body.PJ_PJPONTOS,req.body.PJ_PJOBSERVACAO,blnAtivo, req.body.PJ_PJID],( err, results, fields) =>{
+                            ,req.body.PJ_PJPONTOS,req.body.PJ_PJOBSERVACAO,blnAtivo, req.body.PJ_JGID, req.body.PJ_PJID],( err, results, fields) =>{
         if (err){
             console.log(err)
             res.sendStatus(500)
@@ -214,7 +214,13 @@ exports.AlterarPtsCompeticaoJogador = (req, res) => {
 exports.GetPtsCompeticaoJogadorId = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
-    strSql = "SELECT * FROM PTSCOMPETICOESJOGADORES WHERE PJ_PJID = ? ";
+    strSql = " SELECT    PJ.PJ_PJID,            PJ.PJ_CPID,            PJ.PJ_JGID,           PJ.PJ_JOMATRICULA, PJ_JOID, "
+    strSql += "          PJ.PJ_PJCOLOCACAO,     PJ.PJ_PJPONTOSGANHOS,  PJ.PJ_PJJOGOS,        PJ.PJ_PJVITORIAS,  PJ_PJEMPATE, "
+    strSql += "          PJ.PJ_PJDERROTA,       PJ.PJ_PJGOLSPRO,       PJ.PJ_PJGOLCONTRA,    PJ.PJ_PJSALDOGOLS, PJ_PJPONTOS, "
+    strSql += "          PJ.PJ_PJOBSERVACAO,    PJ.PJ_PJATIVO,         PJ.PJ_PJDATACADASTRO, CP.CP_CPDATAINICIO "
+    strSql += " FROM     PTSCOMPETICOESJOGADORES PJ "
+    strSql += " JOIN     COMPETICOES CP ON CP.CP_CPID = PJ.PJ_CPID "
+    strSql += " WHERE    PJ_PJID = ? ";
     console.log(strSql);
     const connection = mysql.createConnection(config)
     connection.query(strSql,[req.params.id],( err, rows, fields) =>{
@@ -224,7 +230,9 @@ exports.GetPtsCompeticaoJogadorId = (req, res) => {
         const response = {
             PJ_PJID : rows[0].PJ_PJID,
             PJ_CPID : rows[0].PJ_CPID,
+            ano: rows[0].CP_CPDATAINICIO.getFullYear(),
             PJ_JOID : rows[0].PJ_JOID,
+            PJ_JGID : rows[0].PJ_JGID,
             PJ_JOMATRICULA : rows[0].PJ_JPJ_JOMATRICULAOID,
             PJ_PJCOLOCACAO : rows[0].PJ_PJCOLOCACAO,
             PJ_PJPONTOSGANHOS : rows[0].PJ_PJPONTOSGANHOS,
@@ -270,15 +278,15 @@ exports.ImportarPontosCompeticao = (req, res) => {
             if (req.body[i] != null && req.body[i].PJ_CPID != 0){
                 strSql = "INSERT INTO PTSCOMPETICOESJOGADORES (PJ_CPID,PJ_JOMATRICULA,PJ_JOID,PJ_PJCOLOCACAO,";
                 strSql += "PJ_PJPONTOSGANHOS,PJ_PJJOGOS,PJ_PJVITORIAS,PJ_PJEMPATE,PJ_PJDERROTA,PJ_PJGOLSPRO,";
-                strSql += "PJ_PJGOLCONTRA,PJ_PJSALDOGOLS,PJ_PJPONTOS,PJ_PJOBSERVACAO,PJ_PJATIVO,PJ_PJDATACADASTRO)";
-                strSql += " VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?, null,1,Now())";
+                strSql += "PJ_PJGOLCONTRA,PJ_PJSALDOGOLS,PJ_PJPONTOS,PJ_JGID, PJ_PJOBSERVACAO,PJ_PJATIVO,PJ_PJDATACADASTRO)";
+                strSql += " VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?, null,1,Now())";
                 console.log(strSql);
                 console.log("CP " + req.body[i].PJ_CPID + " JOID=" + req.body[i].PJ_JOID + " iterator " + i)
                 const connection = mysql.createConnection(config);
                 connection.query(strSql,[req.body[i].PJ_CPID,req.body[i].PJ_JOMATRICULA,req.body[i].PJ_JOID,req.body[i].PJ_PJCOLOCACAO,
                                             req.body[i].PJ_PJPONTOSGANHOS,req.body[i].PJ_PJJOGOS,req.body[i].PJ_PJVITORIAS,
                                             req.body[i].PJ_PJEMPATE,req.body[i].PJ_PJDERROTA,req.body[i].PJ_PJGOLSPRO,
-                                            req.body[i].PJ_PJGOLCONTRA,req.body[i].PJ_PJSALDOGOLS,req.body[i].PJ_PJPONTOS],
+                                            req.body[i].PJ_PJGOLCONTRA,req.body[i].PJ_PJSALDOGOLS,req.body[i].PJ_PJPONTOS,req.body[i].PJ_JGID],
                                         ( err, results, fields) =>{
                     connection.destroy();
                     if (err) {console.log(err + "chegou aqui");return res.status(500).send({ error: err}) }

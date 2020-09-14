@@ -16,10 +16,16 @@ router.get('/', Login.obrigatorio, cors(), jogosControllers.GetAllJogos)
 router.options('/Incluir',  bodyParser.json(),cors()) // enable pre-flight request for DELETE 
 router.post('/Incluir', Login.obrigatorio,cors(),jogosControllers.IncluirJogo)
 
+router.options('/GetIdJogo/:id', cors()) // enable pre-flight request for DELETE 
+router.get('/GetIdJogo/:id',Login.obrigatorio, cors(), jogosControllers.GetIdJogo)
+
 router.options('/Alterar/:id', bodyParser.json(),cors())
 router.put('/Alterar/:id', Login.obrigatorio, cors(), jogosControllers.AlterarJogo);
 
 router.options('/Excluir/:id', bodyParser.json(),cors())
 router.delete('/Excluir/:id', Login.obrigatorio, cors(),jogosControllers.ExcluirJogo);
+
+router.options('/TabelaJogos', bodyParser.json(),cors())
+router.get('/TabelaJogos', Login.obrigatorio, cors(),jogosControllers.TabelaJogos);
 
 module.exports = router;

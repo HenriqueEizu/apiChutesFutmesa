@@ -140,7 +140,8 @@ exports.Login = (req,res) => {
                     usuario: { US_USID : rows[0].US_USID,
                                US_USLOGIN :rows[0].US_USLOGIN,
                                US_USNOMETRATAMENTO :rows[0].US_USNOMETRATAMENTO,
-                               US_USEMAIL: rows[0].US_USEMAIL
+                               US_USEMAIL: rows[0].US_USEMAIL,
+                               US_GUID : rows[0].US_GUID,
                     }
                 })
             }

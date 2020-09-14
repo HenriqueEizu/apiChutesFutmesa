@@ -19,8 +19,11 @@ router.get('/VerificaEquipe', Login.obrigatorio, cors(),equipeControllers.Verifi
 router.options('/RankingJogadorStatus/:id', cors()) // enable pre-flight request for DELETE 
 router.get('/RankingJogadorStatus/:id', Login.obrigatorio, cors(), equipeControllers.RankingJogadorStatus)
 
-router.options('/GetRankingEquipes/:id', cors()) // enable pre-flight request for DELETE 
-router.get('/GetRankingEquipes/:id', Login.obrigatorio, cors(), equipeControllers.RankingEquipes)
+router.options('/GetRankingEquipes', cors()) // enable pre-flight request for DELETE 
+router.get('/GetRankingEquipes', Login.obrigatorio, cors(), equipeControllers.RankingEquipes)
+
+router.options('/PontuacaoUltimaRodada', cors()) // enable pre-flight request for DELETE 
+router.get('/PontuacaoUltimaRodada', Login.obrigatorio, cors(), equipeControllers.PontuacaoUltimaRodada)
 
 router.options('/imagemEscudo', cors()) // enable pre-flight request for DELETE 
 router.get('/imagemEscudo', Login.obrigatorio, cors(), equipeControllers.ImagemEscudos)
@@ -37,6 +40,14 @@ router.put('/Alterar', Login.obrigatorio, cors(), equipeControllers.AlterarEquip
 router.options('/GetEquipeId/:id', bodyParser.json(),cors())
 router.get('/GetEquipeId/:id', Login.obrigatorio, cors(),equipeControllers.GetEquipeId);
 
+router.options('/GetEquipeIdPorusuario/:id', bodyParser.json(),cors())
+router.get('/GetEquipeIdPorusuario/:id', Login.obrigatorio, cors(),equipeControllers.GetEquipeIdPorusuario);
+
+router.options('/DiasFechaMercado', cors()) // enable pre-flight request for DELETE 
+router.get('/DiasFechaMercado', Login.obrigatorio, cors(), equipeControllers.DiasFechaMercado)
+
+router.options('/Mercadofechado', cors()) // enable pre-flight request for DELETE 
+router.get('/Mercadofechado', Login.obrigatorio, cors(), equipeControllers.Mercadofechado)
 
 router.post('/', (req, res, next) =>{
     res.status(201).send({

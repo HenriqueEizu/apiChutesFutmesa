@@ -19,6 +19,11 @@ router.get('/OsMaisEscalados', Login.obrigatorio, cors(),rankingControllers.OsMa
 router.options('/OsSeusEscalados/:id', bodyParser.json(),cors())
 router.get('/OsSeusEscalados/:id', Login.obrigatorio, cors(),rankingControllers.OsSeusEscalados);
 
+router.options('/RankingGeral', bodyParser.json(),cors())
+router.get('/RankingGeral', Login.obrigatorio, cors(),rankingControllers.RankingGeral);
+
+
+
 
 router.post('/', (req, res, next) =>{
     res.status(201).send({

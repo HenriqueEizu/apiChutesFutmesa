@@ -5,7 +5,10 @@ exports.GetAllEquipes = (req,res) => {
     console.log(req.usuario);
     const connection = mysql.createConnection(config)
     strSql : String;
-    strSql = "SELECT	EQ.*, US.US_USID, US.US_USNOMETRATAMENTO "
+
+    strSql = " SELECT	EQ.EQ_EQID, EQ.EQ_EQNOME, EQ.EQ_USID, EQ.EQ_EQESCUDO, ";
+    strSql += " EQ.EQ_EQOBSERVACAO, EQ.EQ_EQATIVO, EQ.EQ_EQDATACADASTRO, ";
+    strSql += " US.US_USID, US.US_USNOMETRATAMENTO "
     strSql = strSql + " FROM	EQUIPES EQ "
     strSql = strSql + " JOIN	USUARIO US ON US.US_USID = EQ.EQ_USID; "
     connection.query(strSql,( err, rows, fields) =>{
@@ -15,24 +18,17 @@ exports.GetAllEquipes = (req,res) => {
         const response = {
             competicoes: rows.map(cp => {
                 return {
-                    CP_CPID : cp.CP_CPID,
-                    CP_CPDESCRICAO : cp.CP_CPDESCRICAO,
-                    CP_CPCIDADE : cp.CP_CPCIDADE,
-                    CP_ROID : cp.CP_ROID,
-                    OBJ_Rodada :  {
-                        RO_ROID : cp.RO_ROID,
-                        RO_RODESCRICAO  : cp.RO_RODESCRICAO,
+                    EQ_EQID  : cp.EQ_EQID,
+                    EQ_EQNOME : cp.EQ_EQNOME,
+                    EQ_USID : cp.EQ_USID,
+                    OBJ_USUARIO : {
+                        US_USID : cp.US_USID,
+                        US_USNOMETRATAMENTO : cp.US_USNOMETRATAMENTO,
                     },
-                    CP_CPDATALIMITEAPOSTA : cp.CP_CPDATALIMITEAPOSTA,
-                    CP_CPDATAINICIO : cp.CP_CPDATAINICIO,
-                    CP_CJID : cp.CP_CJID,
-                    OBJ_CATEGORIAJOGADOR  : {
-                        CJ_CJID : cp.CJ_CJID,
-                        CJ_CJDESCRICAO  : cp.CJ_CJDESCRICAO,
-                    },
-                    CP_CPATIVO : cp.CP_CPATIVO,
-                    CP_CPDATACADASTRO : cp.CP_CPDATACADASTRO,
-                    CP_CPFOTO : cp.CP_CPFOTO
+                    EQ_EQESCUDO : cp.EQ_EQESCUDO,
+                    EQ_EQOBSERVACAO : cp.EQ_EQOBSERVACAO,
+                    EQ_EQATIVO : cp.EQ_EQATIVO,
+                    EQ_EQDATACADASTRO : cp.EQ_EQDATACADASTRO,
                 }
             })
         }
@@ -101,32 +97,31 @@ exports.RankingEquipes = (req,res) => {
     console.log(req.usuario);
     const connection = mysql.createConnection(config)
     strSql : String;
-    if (req.params.id = true){
-        strSql = "SELECT RANK() OVER (PARTITION BY A.AJ_CPDESCRICAO,A.AJ_RODESCRICAO, A.AJ_EQNOME, A.AJ_USNOMETRATAMENTO ORDER BY A.TOTAL DESC) AS POSICAO, "
-		strSql = strSql + "  A.AJ_CPDESCRICAO,A.AJ_RODESCRICAO,A.AJ_EQNOME,A.AJ_USNOMETRATAMENTO, A.TOTAL, A.AJ_EQESCUDO, A.AJ_EQESCUDO"
-        strSql = strSql + "  FROM	(SELECT  AJ.AJ_AJDATAVIGENTE, SUM(AJ.AJ_AJPONTOS)as TOTAL,AJ.AJ_CPDESCRICAO, AJ.AJ_RODESCRICAO, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO , AJ.AJ_EQESCUDO"
-		strSql = strSql + "         FROM	futmesacartola.APURACAOJOGADORES AJ "
-		strSql = strSql + "         GROUP BY AJ.AJ_AJDATAVIGENTE, AJ.AJ_CPDESCRICAO, AJ.AJ_RODESCRICAO, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO, AJ.AJ_EQESCUDO) A ; "
-    }else{
-        strSql = "SELECT RANK() OVER (PARTITION BY A.AJ_CPDESCRICAO,A.AJ_RODESCRICAO, A.AJ_EQNOME, A.AJ_USNOMETRATAMENTO ORDER BY A.TOTAL DESC), "
-		strSql = strSql + "A.AJ_CPDESCRICAO,A.AJ_RODESCRICAO,A.AJ_EQNOME,A.AJ_USNOMETRATAMENTO, A.TOTAL, A.AJ_EQESCUDO"
-        strSql = strSql + "FROM	(SELECT  NULL AS AJ_AJDATAVIGENTE, SUM(AJ.AJ_AJPONTOS)as TOTAL, NULL AS AJ_CPDESCRICAO, NULL AS AJ_RODESCRICAO, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO, AJ.AJ_EQESCUDO "
-		strSql = strSql + "     FROM	futmesacartola.APURACAOJOGADORES AJ "
-		strSql = strSql + "     GROUP BY AJ.AJ_AJDATAVIGENTE, AJ.AJ_CPDESCRICAO, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO,AJ.AJ_EQESCUDO) A "
-    }
+
+    strSql = "  SELECT  B.COLOCACAO, B.AJ_EQNOME,B.AJ_USNOMETRATAMENTO, B.TOTAL, B.AJ_EQESCUDO, B.AJ_USID ";
+    strSql += " FROM ( ";
+	strSql += " 		SELECT RANK() OVER (PARTITION BY A.AJ_CPDESCRICAO ORDER BY A.TOTAL DESC) AS COLOCACAO,  ";
+	strSql += " 		A.AJ_EQNOME,A.AJ_USNOMETRATAMENTO, A.TOTAL, A.AJ_EQESCUDO, A.AJ_USID ";
+	strSql += " 		FROM	(	SELECT  NULL AS AJ_CPDESCRICAO,SUM(AJ.AJ_AJPONTOS) as TOTAL, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO, AJ.AJ_EQESCUDO, AJ.AJ_USID ";
+	strSql += " 					FROM	futmesacartola.APURACAOJOGADORES AJ  ";
+	strSql += " 					GROUP BY AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO,AJ.AJ_EQESCUDO,AJ.AJ_USID) A  ";
+	strSql += " 	 ) B ";
+	// strSql += " WHERE B.AJ_USID = ? ";
+
+    console.log(strSql);
     connection.query(strSql,( err, rows, fields) =>{
         connection.destroy();
-        if (err) {return res.status(500).send({ error: err}) }
+        if (err) {console.log(err); return res.status(500).send({ error: err}) }
         if (rows.length < 1){ 
+            console.log("nulo")
             const responseNull = {
                 rankingEquipes: {
-                    POSICAO : null,
+                    COLOCACAO : null,
                     TOTAL : null,
-                    AJ_CPDESCRICAO : null,
                     AJ_EQNOME : null,
-                    AJ_RODESCRICAO : null,
                     AJ_USNOMETRATAMENTO : null,
                     AJ_EQESCUDO : null,
+                    AJ_USID : null,
                 }
             }
             return res.status(200).send(responseNull)
@@ -134,16 +129,66 @@ exports.RankingEquipes = (req,res) => {
         const response = {
             rankingEquipes: rows.map(re => {
                 return {
-                    POSICAO : re.POSICAO,
+                    COLOCACAO : re.COLOCACAO,
                     TOTAL : re.TOTAL,
-                    AJ_CPDESCRICAO : re.AJ_CPDESCRICAO,
                     AJ_EQNOME : re.AJ_EQNOME,
-                    AJ_RODESCRICAO : re.AJ_RODESCRICAO,
                     AJ_USNOMETRATAMENTO : re.AJ_USNOMETRATAMENTO,
                     AJ_EQESCUDO : re.AJ_EQESCUDO,
+                    AJ_USID : re.AJ_USID,
                 }
             })
         }
+        console.log(response.rankingEquipes);
+        return res.status(200).send(response.rankingEquipes);
+    }
+)}
+
+exports.PontuacaoUltimaRodada = (req,res) => {
+    const connection = mysql.createConnection(config)
+    strSql : String;
+
+    strSql = "  SELECT  B.COLOCACAO, B.AJ_EQNOME,B.AJ_USNOMETRATAMENTO, B.TOTAL, B.AJ_EQESCUDO, B.AJ_USID ";
+    strSql += " FROM ( ";
+	strSql += " 		SELECT RANK() OVER (PARTITION BY A.AJ_CPDESCRICAO ORDER BY A.TOTAL DESC) AS COLOCACAO,  ";
+	strSql += " 		A.AJ_EQNOME,A.AJ_USNOMETRATAMENTO, A.TOTAL, A.AJ_EQESCUDO, A.AJ_USID ";
+	strSql += " 		FROM	(	SELECT  NULL AS AJ_CPDESCRICAO,SUM(AJ.AJ_AJPONTOS) as TOTAL, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO, AJ.AJ_EQESCUDO, AJ.AJ_USID ";
+    strSql += " 					FROM	futmesacartola.APURACAOJOGADORES AJ  ";
+    strSql += "                     WHERE   AJ.AJ_AJDATAVIGENTE IN (SELECT MAX(AJ_AJDATAVIGENTE) FROM futmesacartola.APURACAOJOGADORES) ";
+	strSql += " 					GROUP BY AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO,AJ.AJ_EQESCUDO,AJ.AJ_USID) A  ";
+	strSql += " 	 ) B ";
+	// strSql += " WHERE B.AJ_USID = ? ";
+
+    console.log(strSql);
+    connection.query(strSql,( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {console.log(err); return res.status(400).send({ error: err}) }
+        if (rows.length < 1){ 
+            console.log("nulo")
+            const responseNull = {
+                rankingEquipes: {
+                    COLOCACAO : null,
+                    TOTAL : null,
+                    AJ_EQNOME : null,
+                    AJ_USNOMETRATAMENTO : null,
+                    AJ_EQESCUDO : null,
+                    AJ_USID : null,
+                }
+            }
+            return res.status(200).send(responseNull)
+        }
+        const response = {
+            rankingEquipes: rows.map(re => {
+                return {
+                    COLOCACAO : re.COLOCACAO,
+                    TOTAL : re.TOTAL,
+                    AJ_EQNOME : re.AJ_EQNOME,
+                    AJ_USNOMETRATAMENTO : re.AJ_USNOMETRATAMENTO,
+                    AJ_EQESCUDO : re.AJ_EQESCUDO,
+                    AJ_USID : re.AJ_USID,
+                }
+            })
+        }
+        console.log(response.rankingEquipes);
         return res.status(200).send(response.rankingEquipes);
     }
 )}
@@ -174,11 +219,76 @@ exports.ImagemEscudos = (req,res) => {
     }
 )}
 
+exports.DiasFechaMercado = (req,res) => {
+    strSql : String;
+    blnAtivo : Boolean;
+    strSql = " SELECT	DATEDIFF( CP.CP_CPDATALIMITEAPOSTA,NOW()) as DiasFechaMercado ";
+    strSql += " FROM	futmesacartola.COMPETICOES   CP ";
+    strSql += " WHERE	DATEDIFF( CP.CP_CPDATALIMITEAPOSTA,NOW()) > 0 ";
+    strSql += " ORDER BY DATEDIFF( CP.CP_CPDATALIMITEAPOSTA,NOW()) ASC ";
+
+    const connection = mysql.createConnection(config)
+    connection.query(strSql,( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {return res.status(500).send({ error: err}) }
+        if (rows.length < 1){ 
+            const responseNull = {
+                DiasFechaMercado  : null,
+            }
+            return res.status(200).send(responseNull);}
+        const response = {
+            DiasFechaMercado  : rows[0].DiasFechaMercado,
+        }
+        return res.status(200).send(response);
+    })
+
+
+
+
+    // console.log(req.usuario);
+    // const connection = mysql.createConnection(config)
+    // strSql : String;
+    // strSql = " SELECT	DATEDIFF( CP.CP_CPDATALIMITEAPOSTA,NOW()) as DiasFechaMercado ";
+    // strSql += " FROM	futmesacartola.COMPETICOES   CP ";
+    // strSql += " where	DATEDIFF( CP.CP_CPDATALIMITEAPOSTA,NOW()) > 0 ";
+    // strSql += " order	by DATEDIFF( CP.CP_CPDATALIMITEAPOSTA,NOW()) ";
+    // connection.query(strSql,( err, rows, fields) =>{
+    //     connection.destroy();
+    //     if (err) {return res.status(500).send({ error: err}) }
+    //     if (rows.length < 1){ return res.status(401).send({ mensagem: 'Nenhuma Imagem encontrado'})}
+    //     const response1 = {
+    //         EQ_EQID  : rows[0].DiasFechaMercado,
+    //     }
+    //     return res.status(200).send(response);
+    // })
+    // console.log(strSql);
+    // // console.log(response);
+    // return res.status(200).send(response1);
+}
+
+exports.Mercadofechado = (req,res) => {
+    strSql : String;
+    blnAtivo : Boolean;
+    strSql = " SELECT	count(*) as Mercadofechado ";
+    strSql += " FROM	futmesacartola.COMPETICOES   CP ";
+    strSql += " where	NOW() between CP.CP_CPDATALIMITEAPOSTA and  CP.CP_CPDATAINICIO ";
+    const connection = mysql.createConnection(config)
+    connection.query(strSql,( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {return res.status(500).send({ error: err}) }
+        const response = {
+            Mercadofechado  : rows[0].Mercadofechado,
+        }
+        return res.status(200).send(response);
+    })
+}
+
+
 
 exports.ExcluirEquipe = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
-    strSql = "DELETE FROM COMPETICOES WHERE CP_CPID = ? ";
+    strSql = "DELETE FROM EQUIPES WHERE EQ_EQID = ? ";
     console.log(strSql);
     const connection = mysql.createConnection(config)
     connection.query(strSql,[req.params.id],( err, results, fields) =>{
@@ -210,10 +320,11 @@ exports.AlterarEquipe = (req, res) => {
     {
         blnAtivo = true
     }
-    strSql = "UPDATE EQUIPES SET EQ_EQNOME = ?, EQ_USID = ?, EQ_EQESCUDO = ?, EQ_EQATIVO = ? , EQ_EQOBSERVACAO = ?  "
+    // strSql = "UPDATE EQUIPES SET EQ_EQNOME = ?, EQ_USID = ?, EQ_EQESCUDO = ?, EQ_EQATIVO = ? , EQ_EQOBSERVACAO = ?  "
+    strSql = "UPDATE EQUIPES SET EQ_EQNOME = ?, EQ_EQESCUDO = ?, EQ_EQATIVO = ? , EQ_EQOBSERVACAO = ?  "
     strSql = strSql + " WHERE EQ_EQID = ? " ;
     console.log(strSql);
-    connection.query(strSql,[req.body.EQ_EQNOME,req.body.EQ_USID,req.body.EQ_EQESCUDO,blnAtivo,req.body.EQ_EQOBSERVACAO, req.body.EQ_EQID],( err, results, fields) =>{
+    connection.query(strSql,[req.body.EQ_EQNOME,req.body.EQ_EQESCUDO,blnAtivo,req.body.EQ_EQOBSERVACAO, req.body.EQ_EQID],( err, results, fields) =>{
         if (err) {return res.status(500).send({ error: err}) };
         connection.destroy();
         res.end()
@@ -243,6 +354,42 @@ exports.IncluirEquipe = (req, res) => {
 }
 
 exports.GetEquipeId = (req, res) => {
+    strSql : String;
+    blnAtivo : Boolean;
+    strSql = "SELECT * FROM EQUIPES WHERE EQ_EQID = ? ";
+    console.log(strSql);
+    const connection = mysql.createConnection(config)
+    connection.query(strSql,[req.params.id],( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {return res.status(500).send({ error: err}) }
+        if (rows.length < 1){ 
+            const responseNull = {
+                EQ_EQID  : null,
+                EQ_EQNOME : null,
+                EQ_USID : null,
+                // OBJ_USUARIO : rows[0].OBJ_USUARIO,
+                EQ_EQESCUDO : null,
+                EQ_EQOBSERVACAO : null,
+                EQ_EQATIVO : null,
+                EQ_EQDATACADASTRO : null,
+            }
+            return res.status(200).send(responseNull);}
+        const response = {
+            EQ_EQID  : rows[0].EQ_EQID,
+            EQ_EQNOME : rows[0].EQ_EQNOME,
+            EQ_USID : rows[0].EQ_USID,
+            // OBJ_USUARIO : rows[0].OBJ_USUARIO,
+            EQ_EQESCUDO : rows[0].EQ_EQESCUDO,
+            EQ_EQOBSERVACAO : rows[0].EQ_EQOBSERVACAO,
+            EQ_EQATIVO : rows[0].EQ_EQATIVO,
+            EQ_EQDATACADASTRO : rows[0].EQ_EQDATACADASTRO,
+        }
+        return res.status(200).send(response);
+
+    })
+}
+
+exports.GetEquipeIdPorusuario = (req, res) => {
     strSql : String;
     blnAtivo : Boolean;
     strSql = "SELECT * FROM EQUIPES WHERE EQ_USID = ? ";

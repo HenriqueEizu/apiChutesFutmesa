@@ -22,6 +22,7 @@ exports.GetAllJogador = (req,res) => {
                     JO_JOAPELIDO: jo.JO_JOAPELIDO,
                     JO_JOATIVO: jo.JO_JOATIVO,
                     US_CLID : jo.JO_CLID,
+                    JO_CLID : jo.JO_CLID,
                     OBJ_CLUBE : {
                         CL_CLID : jo.US_CLID,
                         CL_CLNOME  : jo.CL_CLNOME,

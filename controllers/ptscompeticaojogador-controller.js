@@ -71,8 +71,9 @@ exports.TopPontuadores = (req,res) => {
     strSql +=   "       JO.JO_JOID,                     CL.CL_CLID,                 PJ.PJ_JOMATRICULA, "
 	strSql += 	"       SUM(PJ_PJPONTOSGANHOS) AS PG,	SUM(PJ_PJJOGOS) AS JG,      SUM(PJ_PJVITORIAS) AS V,		SUM(PJ_PJEMPATE) AS E, "
     strSql += 	"       SUM(PJ_PJDERROTA)AS D,			SUM(PJ_PJGOLSPRO) AS GP,	SUM(PJ_PJGOLCONTRA) AS GC,		SUM(PJ_PJSALDOGOLS) AS SG, "
-    strSql += 	"       SUM(PJ_PJPONTOS) AS TOTAL "
+    strSql += 	"       SUM(PJ_PJPONTOS) AS TOTAL,      MAX(CP.CP_CPDATAINICIO) AS CP_CPDATAINICIO "
     strSql += 	"       FROM	futmesacartola.PTSCOMPETICOESJOGADORES PJ "
+    strSql +=   "       JOIN futmesacartola.COMPETICOES CP ON PJ.PJ_CPID = CP.CP_CPID "
     strSql += 	"       JOIN	futmesacartola.jogador JO ON PJ.PJ_JOID = JO.JO_JOID "
     strSql += 	"       JOIN	futmesacartola.clubes CL ON JO.JO_CLID = CL.CL_CLID "
     strSql += 	"       GROUP BY JO.JO_JOAPELIDO,JO.JO_JOFOTO,CL.CL_CLSIGLA,CL.CL_CLEMBLEMA,JO.JO_JOID,CL.CL_CLID,PJ.PJ_JOMATRICULA "
@@ -87,7 +88,9 @@ exports.TopPontuadores = (req,res) => {
                 return {
                     PJ_PJID : null,
                     PJ_CPID : null,
-                    OBJ_COMPETICAO : null,
+                    OBJ_COMPETICAO : {
+                        CP_CPDATAINICIO : pj.CP_CPDATAINICIO,
+                    },
                     PJ_JOID : pj.JO_JOID,
                     OBJ_JOGADOR : {
                         JO_JOAPELIDO : pj.JO_JOAPELIDO,

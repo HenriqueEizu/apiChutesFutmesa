@@ -98,11 +98,11 @@ exports.RankingEquipes = (req,res) => {
     const connection = mysql.createConnection(config)
     strSql : String;
 
-    strSql = "  SELECT  B.COLOCACAO, B.AJ_EQNOME,B.AJ_USNOMETRATAMENTO, B.TOTAL, B.AJ_EQESCUDO, B.AJ_USID ";
+    strSql = "  SELECT  B.COLOCACAO, B.AJ_EQNOME,B.AJ_USNOMETRATAMENTO, B.TOTAL, B.AJ_EQESCUDO, B.AJ_USID, B.AJ_AJDATAVIGENTE ";
     strSql += " FROM ( ";
 	strSql += " 		SELECT RANK() OVER (PARTITION BY A.AJ_CPDESCRICAO ORDER BY A.TOTAL DESC) AS COLOCACAO,  ";
-	strSql += " 		A.AJ_EQNOME,A.AJ_USNOMETRATAMENTO, A.TOTAL, A.AJ_EQESCUDO, A.AJ_USID ";
-	strSql += " 		FROM	(	SELECT  NULL AS AJ_CPDESCRICAO,SUM(AJ.AJ_AJPONTOS) as TOTAL, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO, AJ.AJ_EQESCUDO, AJ.AJ_USID ";
+	strSql += " 		A.AJ_EQNOME,A.AJ_USNOMETRATAMENTO, A.TOTAL, A.AJ_EQESCUDO, A.AJ_USID, A.AJ_AJDATAVIGENTE ";
+	strSql += " 		FROM	(	SELECT  NULL AS AJ_CPDESCRICAO,SUM(AJ.AJ_AJPONTOS) as TOTAL, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO, AJ.AJ_EQESCUDO, AJ.AJ_USID, MAX(AJ.AJ_AJDATAVIGENTE) AS AJ_AJDATAVIGENTE ";
 	strSql += " 					FROM	futmesacartola.APURACAOJOGADORES AJ  ";
 	strSql += " 					GROUP BY AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO,AJ.AJ_EQESCUDO,AJ.AJ_USID) A  ";
 	strSql += " 	 ) B ";
@@ -122,6 +122,7 @@ exports.RankingEquipes = (req,res) => {
                     AJ_USNOMETRATAMENTO : null,
                     AJ_EQESCUDO : null,
                     AJ_USID : null,
+                    AJ_AJDATAVIGENTE : null,
                 }
             }
             return res.status(200).send(responseNull)
@@ -135,6 +136,7 @@ exports.RankingEquipes = (req,res) => {
                     AJ_USNOMETRATAMENTO : re.AJ_USNOMETRATAMENTO,
                     AJ_EQESCUDO : re.AJ_EQESCUDO,
                     AJ_USID : re.AJ_USID,
+                    AJ_AJDATAVIGENTE : re.AJ_AJDATAVIGENTE,
                 }
             })
         }
@@ -147,11 +149,11 @@ exports.PontuacaoUltimaRodada = (req,res) => {
     const connection = mysql.createConnection(config)
     strSql : String;
 
-    strSql = "  SELECT  B.COLOCACAO, B.AJ_EQNOME,B.AJ_USNOMETRATAMENTO, B.TOTAL, B.AJ_EQESCUDO, B.AJ_USID ";
+    strSql = "  SELECT  B.COLOCACAO, B.AJ_EQNOME,B.AJ_USNOMETRATAMENTO, B.TOTAL, B.AJ_EQESCUDO, B.AJ_USID, B.AJ_AJDATAVIGENTE ";
     strSql += " FROM ( ";
 	strSql += " 		SELECT RANK() OVER (PARTITION BY A.AJ_CPDESCRICAO ORDER BY A.TOTAL DESC) AS COLOCACAO,  ";
-	strSql += " 		A.AJ_EQNOME,A.AJ_USNOMETRATAMENTO, A.TOTAL, A.AJ_EQESCUDO, A.AJ_USID ";
-	strSql += " 		FROM	(	SELECT  NULL AS AJ_CPDESCRICAO,SUM(AJ.AJ_AJPONTOS) as TOTAL, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO, AJ.AJ_EQESCUDO, AJ.AJ_USID ";
+	strSql += " 		A.AJ_EQNOME,A.AJ_USNOMETRATAMENTO, A.TOTAL, A.AJ_EQESCUDO, A.AJ_USID, A.AJ_AJDATAVIGENTE ";
+	strSql += " 		FROM	(	SELECT  NULL AS AJ_CPDESCRICAO,SUM(AJ.AJ_AJPONTOS) as TOTAL, AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO, AJ.AJ_EQESCUDO, AJ.AJ_USID, MAX(AJ.AJ_AJDATAVIGENTE) AS AJ_AJDATAVIGENTE ";
     strSql += " 					FROM	futmesacartola.APURACAOJOGADORES AJ  ";
     strSql += "                     WHERE   AJ.AJ_AJDATAVIGENTE IN (SELECT MAX(AJ_AJDATAVIGENTE) FROM futmesacartola.APURACAOJOGADORES) ";
 	strSql += " 					GROUP BY AJ.AJ_EQNOME, AJ.AJ_USNOMETRATAMENTO,AJ.AJ_EQESCUDO,AJ.AJ_USID) A  ";
@@ -172,6 +174,7 @@ exports.PontuacaoUltimaRodada = (req,res) => {
                     AJ_USNOMETRATAMENTO : null,
                     AJ_EQESCUDO : null,
                     AJ_USID : null,
+                    AJ_AJDATAVIGENTE : null,
                 }
             }
             return res.status(200).send(responseNull)
@@ -185,6 +188,7 @@ exports.PontuacaoUltimaRodada = (req,res) => {
                     AJ_USNOMETRATAMENTO : re.AJ_USNOMETRATAMENTO,
                     AJ_EQESCUDO : re.AJ_EQESCUDO,
                     AJ_USID : re.AJ_USID,
+                    AJ_AJDATAVIGENTE : re.AJ_AJDATAVIGENTE,
                 }
             })
         }

@@ -22,6 +22,10 @@ router.get('/OsSeusEscalados/:id', Login.obrigatorio, cors(),rankingControllers.
 router.options('/RankingGeral', bodyParser.json(),cors())
 router.get('/RankingGeral', Login.obrigatorio, cors(),rankingControllers.RankingGeral);
 
+router.options('/CarregaParametros', bodyParser.json(),cors())
+router.get('/CarregaParametros', Login.obrigatorio, cors(),rankingControllers.CarregaParametros);
+
+
 
 
 

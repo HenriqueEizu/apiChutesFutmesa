@@ -241,3 +241,47 @@ exports.RankingGeral = (req, res) => {
     })
 }
 
+exports.CarregaParametros = (req, res) => {
+    strSql : String;
+    blnAtivo : Boolean;
+
+    strSql = " SELECT 	PS.PS_PSID, PS.PS_PSDESCRICAO, PS.PS_PDDATAINICIOTEMPORADA, "
+    strSql += "         PS.PS_PDDATAFIMTEMPORADA, PS.PS_PSOBSERVACAO, PS.PS_PSATIVO, PS.PS_PSDATACADASTRO "
+    strSql += " FROM	futmesacartola.PARAMETROSSISTEMAS PS "
+
+    console.log(strSql);
+    const connection = mysql.createConnection(config)
+    connection.query(strSql,( err, rows, fields) =>{
+        connection.destroy();
+        if (err) {return res.status(500).send({ error: err}) }
+        if (rows.length < 1){ 
+            const response = {
+                PS_PSID : null,
+                PS_PSDESCRICAO : null,
+                PS_PDDATAINICIOTEMPORADA : null,
+                PS_PDDATAFIMTEMPORADA : null,
+                PS_PSOBSERVACAO : null,
+                PS_PSATIVO : null,
+                PS_PSDATACADASTRO : null,
+            }
+            return res.status(200).send(response);
+        }
+        const response = {
+            parametros: rows.map(me => {
+                return {
+                    PS_PSID : me.PS_PSID,
+                    PS_PSDESCRICAO : me.PS_PSDESCRICAO,
+                    PS_PDDATAINICIOTEMPORADA : me.PS_PDDATAINICIOTEMPORADA,
+                    PS_PDDATAFIMTEMPORADA : me.PS_PDDATAFIMTEMPORADA,
+                    PS_PSOBSERVACAO : me.PS_PSOBSERVACAO,
+                    PS_PSATIVO : me.PS_PSATIVO,
+                    PS_PSDATACADASTRO : me.PS_PSDATACADASTRO,
+                }
+            })
+        }
+        return res.status(200).send(response.parametros);
+    })
+}
+
+
+

@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const bodyParser = require('body-parser');
 var cors = require('cors')
 
@@ -10,7 +10,8 @@ const rotaGrupoUsuario = require('./routes/grupousuario')
 const rotaEstados = require('./routes/estados');
 const rotaJogador = require('./routes/jogador')
 const rotaRodada = require('./routes/rodada')
-const rotaCategoriaJogo = require('./routes/categoriajogo')
+const rotaInscricao = require('./routes/inscricao')
+const rotaCategoriaJogo = require('./routes/categoriaJogo')
 const rotaCompeticao = require('./routes/competicao')
 const rotaPtsCompeticaoJogador = require('./routes/ptscompeticaojogador')
 const rotaEquipe = require('./routes/equipe')
@@ -22,7 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 app.use('/clubes',rotaClubes);
 app.use('/usuario',rotaUsuarios);
 app.use('/grupousuario',rotaGrupoUsuario);
@@ -36,6 +37,7 @@ app.use('/equipe',rotaEquipe);
 app.use('/ranking',rotaRanking);
 app.use('/equipejogador',rotaEquipeJogador)
 app.use('/jogos',rotaJogos)
+app.use('/inscricao',rotaInscricao);
 
 
 module.exports = app;

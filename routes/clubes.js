@@ -4,6 +4,7 @@ const mysql = require('mysql');
 let config = require('../config.js');
 var cors = require('cors')
 const Login = require('../middleware/login');
+
 const clubesControllers = require('../controllers/clube-controller');
 const bodyParser = require('body-parser');
 

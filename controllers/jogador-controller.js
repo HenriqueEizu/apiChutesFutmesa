@@ -1,6 +1,5 @@
 const mysql = require('mysql');
 const config = require('../config');
-const { timeout } = require('../apiChutesFutmesa/routes/config');
 
 exports.GetAllJogador = (req,res) => {
     console.log(req.usuario);
@@ -23,6 +22,7 @@ exports.GetAllJogador = (req,res) => {
                     JO_JOATIVO: jo.JO_JOATIVO,
                     US_CLID : jo.JO_CLID,
                     JO_CLID : jo.JO_CLID,
+                    JO_JOINSCRITO : false,
                     OBJ_CLUBE : {
                         CL_CLID : jo.US_CLID,
                         CL_CLNOME  : jo.CL_CLNOME,

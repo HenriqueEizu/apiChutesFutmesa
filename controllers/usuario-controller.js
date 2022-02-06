@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const config = require('../config');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
  
@@ -142,6 +143,7 @@ exports.Login = (req,res) => {
                                US_USNOMETRATAMENTO :rows[0].US_USNOMETRATAMENTO,
                                US_USEMAIL: rows[0].US_USEMAIL,
                                US_GUID : rows[0].US_GUID,
+                               US_CLID : rows[0].US_CLID
                     }
                 })
             }

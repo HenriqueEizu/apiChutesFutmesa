@@ -1,6 +1,5 @@
 const mysql = require('mysql');
 const config = require('../config');
-const { timeout } = require('../apiChutesFutmesa/routes/config');
 
 exports.GetAllJogos = (req,res) => {
     console.log(req.usuario);

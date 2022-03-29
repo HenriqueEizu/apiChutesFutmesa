@@ -2,57 +2,72 @@ const mysql = require('mysql');
 const config = require('../config');
 
 exports.InserirInscricao = (req, res) => {
+    nRegistro : Number;
+
+    req.body.length
     strSql = "DELETE FROM INSCRICAOCOMPETICAO WHERE  IS_CLID = ? AND IS_CPID = ? " ;
     console.log("*******************************************************")
     console.log(req.body[0])
     console.log("*******************************************************")
-    const connection = mysql.createConnection(config);
-    connection.beginTransaction(function(err) {
+
+    if (req.body[0].IS_JOID == 99999 || req.body[0] == undefined){
+        const connection = mysql.createConnection(config);
         connection.query(strSql,[req.body[0].IS_CLID,req.body[0].IS_CPID],( err, rows, fields) =>{
             console.log("passo 1");
+        res.end()
+        return true;
+        })
+    }
+    else{
+    
+        const connection = mysql.createConnection(config);
+        connection.beginTransaction(function(err) {
+            connection.query(strSql,[req.body[0].IS_CLID,req.body[0].IS_CPID],( err, rows, fields) =>{
+                console.log("passo 1");
+            
                 if (err) {
                     connection.rollback();
                     return false
-                };
-            // setTimeout(function() {
-                for (i = 0; i <= req.body.length -1 ; i++){
-                    console.log("*******************************************************")
-                    console.log(req.body[i])
-                    console.log("*******************************************************")
-                    if (req.body[i] != null){
-                        strSql = "INSERT INTO INSCRICAOCOMPETICAO ( IS_JOID,IS_CPID,IS_ISDATACADASTRO, IS_CLID) " ;
-                        strSql = strSql + " VALUES (?,?,?,?)" ;
-                        connection.query(strSql,[req.body[i].IS_JOID,req.body[i].IS_CPID,req.body[i].IS_ISDATACADASTRO,req.body[i].IS_CLID],( err, rows, fields) =>{
-                            console.log("passo 3");
-                            if (err) {
-                                console.log("erro no passo 3")
-                                console.log(err)
-                                connection.rollback();
-                                return false
-                            };
-                            
-                        })
+                    };
+                // setTimeout(function() {
+                    for (i = 0; i <= req.body.length -1 ; i++){
+                        console.log("*******************************************************")
+                        console.log(req.body[i].IS_ISDIA)
+                        console.log("*******************************************************")
+                        if (req.body[i] != null){
+                            strSql = "INSERT INTO INSCRICAOCOMPETICAO ( IS_JOID,IS_CPID,IS_ISDATACADASTRO, IS_CLID, IS_ISDIA) " ;
+                            strSql = strSql + " VALUES (?,?,?,?, ?)" ;
+                            connection.query(strSql,[req.body[i].IS_JOID,req.body[i].IS_CPID,req.body[i].IS_ISDATACADASTRO,req.body[i].IS_CLID, req.body[i].IS_ISDIA],( err, rows, fields) =>{
+                                console.log("passo 3");
+                                if (err) {
+                                    console.log("erro no passo 3")
+                                    console.log(err)
+                                    connection.rollback();
+                                    return false
+                                };
+                                
+                            })
+                        }
                     }
-                }
-            // }, 4000);
-            console.log("Jogadores inscritos com sucesso");
-            connection.commit();
-            //connection.destroy();
-            res.end()
-            return true;
-            
+                // }, 4000);
+                console.log("Jogadores inscritos com sucesso");
+                connection.commit();
+                //connection.destroy();
+                res.end()
+                return true;
+                
+            })
         })
-    })
-    setTimeout(function() {connection.destroy()}, 12000);
-    //connection.destroy();
-    
+        setTimeout(function() {connection.destroy()}, 12000);
+        //connection.destroy();
+    }
 }
 
 exports.GetInscricaoClube = (req,res) => {
 
     const connection = mysql.createConnection(config)
     strSql : String;
-    strSql = "SELECT  IC.IS_ISID, IC.IS_CLID,JO.JO_JOID, JO.JO_JONOME, JO.JO_JOFOTO, JO.JO_JOAPELIDO,JO.JO_JOATIVO , JO.JO_CLID, "
+    strSql = "SELECT  IC.IS_ISID, IC.IS_CLID,IC.IS_ISDIA, JO.JO_JOID, JO.JO_JONOME, JO.JO_JOFOTO, JO.JO_JOAPELIDO,JO.JO_JOATIVO , JO.JO_CLID, "
     strSql = strSql + " CP.CP_CPID, CP.CP_CPDESCRICAO, CP.CP_CPCIDADE, CP.CP_ROID "
     strSql = strSql + " FROM	INSCRICAOCOMPETICAO IC "
     strSql = strSql + " JOIN	JOGADOR JO ON (IC.IS_JOID = JO.JO_JOID) "
@@ -71,6 +86,7 @@ exports.GetInscricaoClube = (req,res) => {
                     IS_CPID : jo.CP_CPID,
                     IS_ISDATACADASTRO : jo.IS_ISDATACADASTRO,
                     IS_CLID : jo.IS_CLID,
+                    IS_ISDIA: jo.IS_ISDIA,
                     OBJ_JOGADOR : {
                         JO_JOID: jo.JO_JOID,
                         JO_JONOME: jo.JO_JONOME,
@@ -79,7 +95,8 @@ exports.GetInscricaoClube = (req,res) => {
                         JO_JOATIVO: jo.JO_JOATIVO,
                         JO_CLID : jo.JO_CLID,
                         JO_CLID : jo.JO_CLID,
-                        JO_JOINSCRITO : false
+                        JO_JOINSCRITO : false,
+                        JO_JODIA: jo.IS_ISDIA,
                     },
                     OBJ_COMPETICAO : {
                         CP_CPID : jo.CP_CPID,
